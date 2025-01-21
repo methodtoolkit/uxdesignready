@@ -5,33 +5,75 @@ export async function POST(request: Request) {
   console.log('API Route started');
   
   try {
-    console.log('Parsing request body');
     const { content } = await request.json();
     console.log('Content received:', content);
     
-    console.log('Checking API key');
     const apiKey = process.env.ANTHROPIC_API_KEY;
     if (!apiKey) {
       throw new Error('API key not found');
     }
-    console.log('API key present');
 
-    console.log('Initializing Anthropic client');
     const anthropic = new Anthropic({
       apiKey
     });
 
     console.log('Making request to Claude');
     try {
-      // Set a shorter prompt to reduce response time
       const response = await anthropic.messages.create({
         model: "claude-3-opus-20240229",
         messages: [{ 
           role: "user", 
-          content: `Briefly analyze this user story and provide a short checklist: ${content}. Keep your response under 500 words total.`
+          content: `As a UX expert, analyze this user story for gaps and create a UX design checklist.
+
+Story to analyze: "${content}"
+
+Provide your response in two clear sections:
+
+GAP ANALYSIS:
+1. Missing User Requirements
+- Identify missing user scenarios
+- Note undefined user types/roles
+- List missing prerequisites
+
+2. Technical & Security Gaps
+- Authentication requirements
+- Security considerations
+- Performance criteria
+- Data handling needs
+
+3. UX/UI Gaps
+- Missing interface states
+- Interaction patterns
+- Navigation requirements
+- Feedback mechanisms
+
+DESIGN CHECKLIST:
+1. User States
+□ List all required states (logged out, logging in, etc.)
+□ Define success states
+□ Define error states
+
+2. Authentication Flow
+□ Login form requirements
+□ Validation rules
+□ Error handling
+□ Security measures
+
+3. Dashboard Access
+□ Navigation requirements
+□ Content organization
+□ User permissions
+□ Loading states
+
+4. Accessibility
+□ WCAG compliance needs
+□ Keyboard navigation
+□ Screen reader support
+
+Keep your analysis focused and actionable.`
         }],
-        temperature: 1,
-        max_tokens: 500, // Reduced token limit for faster response
+        temperature: 0.7,
+        max_tokens: 1024,
       });
       
       console.log('Claude response received');
@@ -40,13 +82,12 @@ export async function POST(request: Request) {
         throw new Error('Invalid response format from Claude');
       }
 
-      // Split the response into two parts
       const fullResponse = response.content[0].text;
-      const [analysis, checklist] = fullResponse.split('\n\n');
+      const [gapAnalysis, checklist] = fullResponse.split('DESIGN CHECKLIST:');
 
       return NextResponse.json({
-        gapAnalysis: analysis || fullResponse,
-        checklist: checklist || fullResponse
+        gapAnalysis: gapAnalysis.replace('GAP ANALYSIS:', '').trim(),
+        checklist: checklist?.trim() || 'No checklist generated'
       });
       
     } catch (claudeError: unknown) {
