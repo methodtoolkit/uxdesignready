@@ -19,9 +19,15 @@ export async function POST(request: Request) {
       max_tokens: 1024,
     });
 
+    // Type check the response content
+    const messageContent = response.content[0];
+    if (messageContent.type !== 'text') {
+      throw new Error('Unexpected response type from Claude');
+    }
+
     return NextResponse.json({
-      gapAnalysis: response.content[0].text,
-      checklist: response.content[0].text
+      gapAnalysis: messageContent.text,
+      checklist: messageContent.text
     });
 
   } catch (error) {
