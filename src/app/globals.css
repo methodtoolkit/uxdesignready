@@ -2,27 +2,16 @@
 @tailwind components;
 @tailwind utilities;
 
-html, body {
-  min-height: 100vh;
-  background-color: #F8FAFC;
-  margin: 0;
-  padding: 0;
+:root {
+  --foreground-rgb: 0, 0, 0;
+  --background-rgb: 249, 250, 251;
 }
 
-textarea, button {
-  font-family: inherit;
+body {
+  color: rgb(var(--foreground-rgb));
+  background: rgb(var(--background-rgb));
 }
 
 pre {
-  white-space: pre-wrap;
-  word-break: break-word;
-}
-
-button {
-  cursor: pointer;
-}
-
-button:disabled {
-  cursor: not-allowed;
-  opacity: 0.5;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
 }
