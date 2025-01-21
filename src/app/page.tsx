@@ -53,13 +53,14 @@ export default function Home() {
         </div>
 
         <div className="space-y-8">
+          {/* Input Section */}
           <div className="bg-white rounded-lg shadow p-6">
             <h2 className="text-lg font-medium mb-4">Input Document</h2>
             <textarea
               value={input}
               onChange={(e) => setInput(e.target.value)}
               placeholder="Paste your PRD, user stories, or epics here..."
-              className="w-full h-64 p-4 border border-gray-300 rounded-md resize-none"
+              className="w-full h-64 p-4 border border-gray-300 rounded-md resize-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             />
             <button
               onClick={handleAnalyze}
@@ -68,7 +69,7 @@ export default function Home() {
             >
               {analysisState === 'loading' ? (
                 <>
-                  <Loader2 className="animate-spin mr-2" />
+                  <Loader2 className="animate-spin mr-2 h-4 w-4" />
                   Analyzing...
                 </>
               ) : (
@@ -79,6 +80,7 @@ export default function Home() {
 
           {analysisState === 'success' && (
             <>
+              {/* Gap Analysis Section */}
               <div className="bg-white rounded-lg shadow p-6">
                 <div className="flex items-center justify-between mb-4">
                   <h2 className="text-lg font-medium">Gap Analysis</h2>
@@ -90,11 +92,12 @@ export default function Home() {
                     Copy to clipboard
                   </button>
                 </div>
-                <pre className="whitespace-pre-wrap text-sm text-gray-600">
+                <pre className="whitespace-pre-wrap text-sm text-gray-600 font-mono">
                   {gapAnalysis}
                 </pre>
               </div>
 
+              {/* Design Checklist Section */}
               <div className="bg-white rounded-lg shadow p-6">
                 <div className="flex items-center justify-between mb-4">
                   <h2 className="text-lg font-medium">Design Checklist</h2>
@@ -106,13 +109,14 @@ export default function Home() {
                     Copy to clipboard
                   </button>
                 </div>
-                <pre className="whitespace-pre-wrap text-sm text-gray-600">
+                <pre className="whitespace-pre-wrap text-sm text-gray-600 font-mono">
                   {checklist}
                 </pre>
               </div>
             </>
           )}
 
+          {/* Error State */}
           {analysisState === 'error' && (
             <div className="bg-red-50 rounded-lg p-6">
               <div className="flex items-center gap-2">
