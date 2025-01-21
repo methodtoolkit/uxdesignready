@@ -112,7 +112,10 @@ Format each section with clear headings and bullet points for readability. Be sp
       }]
     });
 
-    const result = response.content[0].text;
+    // Access the response content correctly
+    const result = response.content[0].type === 'text' 
+      ? response.content[0].text 
+      : '';
 
     // Split the result into gap analysis and checklist
     const sections = result.split('DESIGN CHECKLIST:');
@@ -123,7 +126,7 @@ Format each section with clear headings and bullet points for readability. Be sp
       gapAnalysis,
       checklist
     });
-} catch (error: unknown) {
+  } catch (error: unknown) {
     console.error('API Error:', error);
     const errorMessage = error instanceof Error ? error.message : 'Failed to analyze document';
     return NextResponse.json(
