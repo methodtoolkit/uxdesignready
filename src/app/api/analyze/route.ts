@@ -30,47 +30,96 @@ Story to analyze: "${content}"
 Provide your response in two clear sections:
 
 GAP ANALYSIS:
-1. Missing User Requirements
-- Identify missing user scenarios
-- Note undefined user types/roles
-- List missing prerequisites
 
-2. Technical & Security Gaps
-- Authentication requirements
-- Security considerations
-- Performance criteria
-- Data handling needs
+1. Missing User Flows
+- Identify missing user journeys and interactions
+- Highlight critical user flows that aren't addressed
+- Note any edge cases or alternative paths not considered
+- List any missing user roles or permissions
+- Identify gaps in user onboarding or offboarding processes
 
-3. UX/UI Gaps
-- Missing interface states
-- Interaction patterns
-- Navigation requirements
-- Feedback mechanisms
+2. Incomplete Technical Requirements
+- List missing technical specifications
+- Identify undefined system behaviors
+- Note missing performance criteria
+- Highlight security considerations not addressed
+- Point out missing integration requirements
+- Note any missing data handling requirements
+
+3. UX/UI Requirements Gaps
+- Missing interaction patterns
+- Undefined UI states
+- Missing responsive design requirements
+- Unclear navigation patterns
+- Missing content strategy requirements
+- Undefined visual design requirements
+- Missing feedback mechanisms
+
+4. Accessibility & Inclusivity Gaps
+- Missing WCAG compliance requirements
+- Unaddressed accessibility scenarios
+- Missing internationalization considerations
+- Overlooked user diversity needs
+- Missing keyboard navigation requirements
+- Undefined screen reader requirements
+- Missing color contrast specifications
 
 DESIGN CHECKLIST:
-1. User States
-□ List all required states (logged out, logging in, etc.)
-□ Define success states
-□ Define error states
 
-2. Authentication Flow
-□ Login form requirements
-□ Validation rules
-□ Error handling
-□ Security measures
-
-3. Dashboard Access
-□ Navigation requirements
-□ Content organization
-□ User permissions
+1. User States & Flows
+□ Initial/empty states
 □ Loading states
+□ Success states
+□ Error states
+□ Edge cases
+□ User journey maps
+□ State transitions
 
-4. Accessibility
-□ WCAG compliance needs
+2. Interface Requirements
+□ Responsive breakpoints
+□ Component specifications
+□ Layout grids
+□ Typography system
+□ Color system
+□ Icon system
+□ Navigation patterns
+
+3. Interaction Design
+□ Input validation
+□ Form behaviors
+□ Button states
+□ Feedback mechanisms
+□ Animations/transitions
+□ Touch interactions
+□ Keyboard interactions
+
+4. Error Handling
+□ Validation messages
+□ Error prevention
+□ Recovery flows
+□ System feedback
+□ Help documentation
+□ Timeout handling
+□ Connection issues
+
+5. Accessibility Requirements
+□ WCAG compliance level
 □ Keyboard navigation
 □ Screen reader support
+□ Color contrast
+□ Text alternatives
+□ Focus management
+□ ARIA labels
 
-Keep your analysis focused and actionable.`
+6. Performance Requirements
+□ Loading times
+□ Animation performance
+□ Response times
+□ Offline behavior
+□ Data caching
+□ Resource optimization
+
+Format each section with clear headings and bullet points for readability. Be specific about what's missing and what needs to be defined.`
         }],
         temperature: 0.7,
         max_tokens: 1024,
