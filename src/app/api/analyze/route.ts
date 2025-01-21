@@ -123,10 +123,11 @@ Format each section with clear headings and bullet points for readability. Be sp
       gapAnalysis,
       checklist
     });
-  } catch (error: any) {
+} catch (error: unknown) {
     console.error('API Error:', error);
+    const errorMessage = error instanceof Error ? error.message : 'Failed to analyze document';
     return NextResponse.json(
-      { error: error.message || 'Failed to analyze document' },
+      { error: errorMessage },
       { status: 500 }
     );
   }

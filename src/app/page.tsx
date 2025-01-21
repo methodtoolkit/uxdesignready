@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useState } from 'react';
-import { FileText, Upload, AlertCircle, Loader2, ClipboardCopy } from 'lucide-react';
+import { FileText, AlertCircle, Loader2, ClipboardCopy } from 'lucide-react';
 
 type AnalysisState = 'idle' | 'loading' | 'success' | 'error';
 
