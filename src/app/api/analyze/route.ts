@@ -23,14 +23,15 @@ export async function POST(request: Request) {
 
     console.log('Making request to Claude');
     try {
+      // Set a shorter prompt to reduce response time
       const response = await anthropic.messages.create({
         model: "claude-3-opus-20240229",
         messages: [{ 
           role: "user", 
-          content: `Analyze this user story for UX/UI gaps and create a design checklist: ${content}`
+          content: `Briefly analyze this user story and provide a short checklist: ${content}. Keep your response under 500 words total.`
         }],
-        temperature: 0.7,
-        max_tokens: 1024,
+        temperature: 1,
+        max_tokens: 500, // Reduced token limit for faster response
       });
       
       console.log('Claude response received');
@@ -39,9 +40,13 @@ export async function POST(request: Request) {
         throw new Error('Invalid response format from Claude');
       }
 
+      // Split the response into two parts
+      const fullResponse = response.content[0].text;
+      const [analysis, checklist] = fullResponse.split('\n\n');
+
       return NextResponse.json({
-        gapAnalysis: response.content[0].text,
-        checklist: response.content[0].text
+        gapAnalysis: analysis || fullResponse,
+        checklist: checklist || fullResponse
       });
       
     } catch (claudeError: unknown) {
