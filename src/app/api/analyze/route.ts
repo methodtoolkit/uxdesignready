@@ -44,12 +44,15 @@ export async function POST(request: Request) {
         checklist: response.content[0].text
       });
       
-    } catch (claudeError) {
+    } catch (claudeError: unknown) {
       console.error('Claude API Error:', claudeError);
-      throw new Error(`Claude API error: ${claudeError.message}`);
+      if (claudeError instanceof Error) {
+        throw new Error(`Claude API error: ${claudeError.message}`);
+      }
+      throw new Error('Unknown error occurred while calling Claude API');
     }
 
-  } catch (error) {
+  } catch (error: unknown) {
     console.error('Detailed error information:', {
       name: error instanceof Error ? error.name : 'Unknown',
       message: error instanceof Error ? error.message : 'Unknown error occurred',
