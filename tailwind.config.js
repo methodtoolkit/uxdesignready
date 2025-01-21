@@ -7,20 +7,18 @@ module.exports = {
   ],
   theme: {
     extend: {
-      colors: {
-        gray: {
-          50: '#F7F7F7',
-          100: '#E3E3E3',
-          200: '#C8C8C8',
-          300: '#A4A4A4',
-          400: '#808080',
-          500: '#666666',
-          600: '#4D4D4D',
-          700: '#333333',
-          800: '#1A1A1A',
-          900: '#0A0A0A',
-        },
+      maxWidth: {
+        '4xl': '56rem',
       },
+      spacing: {
+        '64': '16rem',
+      },
+      borderRadius: {
+        'lg': '0.5rem',
+      },
+      boxShadow: {
+        DEFAULT: '0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06)',
+      }
     },
   },
   plugins: [],
