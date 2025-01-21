@@ -22,28 +22,32 @@ export async function POST(request: Request) {
     });
 
     console.log('Making request to Claude');
-    const response = await anthropic.messages.create({
-      model: "claude-3-opus-20240229",
-      messages: [{ 
-        role: "user", 
-        content: `Analyze this user story for UX/UI gaps and create a design checklist: ${content}`
-      }],
-      temperature: 0,
-      max_tokens: 1024,
-    });
-    console.log('Response received from Claude:', JSON.stringify(response, null, 2));
+    try {
+      const response = await anthropic.messages.create({
+        model: "claude-3-opus-20240229",
+        messages: [{ 
+          role: "user", 
+          content: `Analyze this user story for UX/UI gaps and create a design checklist: ${content}`
+        }],
+        temperature: 0.7,
+        max_tokens: 1024,
+      });
+      
+      console.log('Claude response received');
+      
+      if (!response.content || !response.content[0] || response.content[0].type !== 'text') {
+        throw new Error('Invalid response format from Claude');
+      }
 
-    // Type check the response content
-    const messageContent = response.content[0];
-    if (messageContent.type !== 'text') {
-      throw new Error('Unexpected response type from Claude');
+      return NextResponse.json({
+        gapAnalysis: response.content[0].text,
+        checklist: response.content[0].text
+      });
+      
+    } catch (claudeError) {
+      console.error('Claude API Error:', claudeError);
+      throw new Error(`Claude API error: ${claudeError.message}`);
     }
-
-    console.log('Sending response back to client');
-    return NextResponse.json({
-      gapAnalysis: messageContent.text,
-      checklist: messageContent.text
-    });
 
   } catch (error) {
     console.error('Detailed error information:', {
@@ -55,7 +59,7 @@ export async function POST(request: Request) {
     return NextResponse.json(
       { 
         error: error instanceof Error ? error.message : 'Failed to analyze document',
-        details: JSON.stringify(error, Object.getOwnPropertyNames(error))
+        details: error instanceof Error ? error.stack : 'No additional details'
       },
       { status: 500 }
     );
