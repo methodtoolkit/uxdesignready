@@ -1,3 +1,11 @@
+import './globals.css'
+import type { Metadata } from 'next'
+
+export const metadata: Metadata = {
+  title: 'UX Design Readiness Checker',
+  description: 'Analyze PRDs and user stories for UX design readiness',
+}
+
 export default function RootLayout({
   children,
 }: {
@@ -5,7 +13,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body>{children}</body>
+      <body className="min-h-screen bg-gray-50">{children}</body>
     </html>
   )
 }
