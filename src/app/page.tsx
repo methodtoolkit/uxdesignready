@@ -10,53 +10,6 @@ interface AnalysisResponse {
   checklist: string
 }
 
-async function analyzeContent(content: string): Promise<AnalysisResponse> {
-  if (!content.trim()) {
-    throw new Error('Please provide content to analyze.')
-  }
-
-  try {
-    const response = await fetch('/api/analyze', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ content }),
-    })
-
-    // Check if response is ok before trying to parse JSON
-    if (!response.ok) {
-      // Try to get error message from response
-      let errorMessage = 'Failed to analyze document'
-      try {
-        const errorData = await response.json()
-        errorMessage = errorData.error || errorMessage
-      } catch {
-        // If JSON parsing fails, use status text
-        errorMessage = response.statusText || errorMessage
-      }
-      throw new Error(errorMessage)
-    }
-
-    let data
-    try {
-      data = await response.json()
-    } catch (err) {
-      console.error('JSON Parse Error:', err)
-      throw new Error('Invalid response from server')
-    }
-    
-    if (!data || !data.gapAnalysis || !data.checklist) {
-      throw new Error('Invalid response format from analysis')
-    }
-
-    return data as AnalysisResponse
-  } catch (error) {
-    console.error('Analysis failed:', error)
-    throw error instanceof Error ? error : new Error('An unexpected error occurred')
-  }
-}
-
 export default function Home() {
   const [input, setInput] = useState<string>('')
   const [analysisState, setAnalysisState] = useState<AnalysisState>('idle')
@@ -77,9 +30,21 @@ export default function Home() {
     setChecklist('')
 
     try {
-      const { gapAnalysis: gap, checklist: list } = await analyzeContent(input)
-      setGapAnalysis(gap)
-      setChecklist(list)
+      const response = await fetch('/api/analyze', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ content: input }),
+      })
+
+      if (!response.ok) {
+        throw new Error('Failed to analyze document')
+      }
+
+      const data = await response.json()
+      setGapAnalysis(data.gapAnalysis)
+      setChecklist(data.checklist)
       setAnalysisState('success')
     } catch (error) {
       console.error('Error:', error)
@@ -93,105 +58,115 @@ export default function Home() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50/50">
-      <header className="bg-white border-b border-gray-100">
-        <div className="max-w-7xl mx-auto px-6 py-6">
-          <div className="flex items-center space-x-3">
-            <FileText className="h-7 w-7 text-blue-500" />
-            <h1 className="text-2xl font-semibold text-gray-800">
+    <div className="min-h-screen bg-[#F8FAFC]">
+      {/* Header */}
+      <div className="w-full bg-white border-b border-gray-200 shadow-sm">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+          <div className="flex items-center gap-3">
+            <FileText className="h-6 w-6 text-blue-600" />
+            <h1 className="text-2xl font-bold text-gray-900">
               UX Design Readiness Checker
             </h1>
           </div>
         </div>
-      </header>
+      </div>
 
-      <main className="max-w-7xl mx-auto px-6 py-8">
-        <div className="grid grid-cols-1 gap-8 lg:grid-cols-2">
-          {/* Input Section */}
-          <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
-            <h2 className="text-lg font-medium text-gray-800 mb-4">
-              Input Document
-            </h2>
-            <div className="space-y-4">
-              <textarea
-                value={input}
-                onChange={(e) => setInput(e.target.value)}
-                placeholder="Paste your PRD, user stories, or epics here..."
-                className="w-full h-64 px-4 py-3 text-gray-700 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-shadow"
-              />
-              <button
-                onClick={handleAnalyze}
-                disabled={!input.trim() || analysisState === 'loading'}
-                className="w-full flex items-center justify-center px-4 py-3 rounded-lg text-white bg-blue-500 hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-              >
-                {analysisState === 'loading' ? (
-                  <>
-                    <Loader2 className="animate-spin -ml-1 mr-2 h-5 w-5" />
-                    Analyzing...
-                  </>
-                ) : (
-                  'Analyze Document'
-                )}
-              </button>
+      {/* Main Content */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+          {/* Input Card */}
+          <div className="bg-white rounded-lg shadow-md border border-gray-200 overflow-hidden">
+            <div className="p-6">
+              <h2 className="text-lg font-semibold text-gray-900 mb-4">
+                Input Document
+              </h2>
+              <div className="space-y-4">
+                <textarea
+                  value={input}
+                  onChange={(e) => setInput(e.target.value)}
+                  placeholder="Paste your PRD, user stories, or epics here..."
+                  className="block w-full h-64 px-4 py-3 text-gray-900 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
+                />
+                <button
+                  onClick={handleAnalyze}
+                  disabled={!input.trim() || analysisState === 'loading'}
+                  className="w-full bg-blue-600 text-white px-4 py-3 rounded-lg font-medium hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {analysisState === 'loading' ? (
+                    <div className="flex items-center justify-center">
+                      <Loader2 className="animate-spin -ml-1 mr-3 h-5 w-5" />
+                      <span>Analyzing...</span>
+                    </div>
+                  ) : (
+                    'Analyze Document'
+                  )}
+                </button>
+              </div>
             </div>
           </div>
 
-          {/* Results Section */}
-          <div className="space-y-8">
+          {/* Results Area */}
+          <div className="space-y-6">
             {analysisState === 'success' && gapAnalysis && (
-              <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
-                <div className="flex items-center justify-between mb-4">
-                  <h2 className="text-lg font-medium text-gray-800">
-                    Gap Analysis
-                  </h2>
-                  <button
-                    onClick={() => copyToClipboard(gapAnalysis)}
-                    className="text-sm text-blue-500 hover:text-blue-600 transition-colors flex items-center gap-2"
-                  >
-                    <ClipboardCopy className="h-4 w-4" />
-                    Copy to clipboard
-                  </button>
+              <div className="bg-white rounded-lg shadow-md border border-gray-200">
+                <div className="p-6">
+                  <div className="flex items-center justify-between mb-4">
+                    <h2 className="text-lg font-semibold text-gray-900">
+                      Gap Analysis
+                    </h2>
+                    <button
+                      onClick={() => copyToClipboard(gapAnalysis)}
+                      className="inline-flex items-center px-3 py-1.5 text-sm text-blue-600 hover:text-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 rounded"
+                    >
+                      <ClipboardCopy className="h-4 w-4 mr-2" />
+                      Copy to clipboard
+                    </button>
+                  </div>
+                  <pre className="text-sm text-gray-700 whitespace-pre-wrap">
+                    {gapAnalysis}
+                  </pre>
                 </div>
-                <pre className="whitespace-pre-wrap text-sm text-gray-600">
-                  {gapAnalysis}
-                </pre>
               </div>
             )}
 
             {analysisState === 'success' && checklist && (
-              <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
-                <div className="flex items-center justify-between mb-4">
-                  <h2 className="text-lg font-medium text-gray-800">
-                    Design Checklist
-                  </h2>
-                  <button
-                    onClick={() => copyToClipboard(checklist)}
-                    className="text-sm text-blue-500 hover:text-blue-600 transition-colors flex items-center gap-2"
-                  >
-                    <ClipboardCopy className="h-4 w-4" />
-                    Copy to clipboard
-                  </button>
+              <div className="bg-white rounded-lg shadow-md border border-gray-200">
+                <div className="p-6">
+                  <div className="flex items-center justify-between mb-4">
+                    <h2 className="text-lg font-semibold text-gray-900">
+                      Design Checklist
+                    </h2>
+                    <button
+                      onClick={() => copyToClipboard(checklist)}
+                      className="inline-flex items-center px-3 py-1.5 text-sm text-blue-600 hover:text-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 rounded"
+                    >
+                      <ClipboardCopy className="h-4 w-4 mr-2" />
+                      Copy to clipboard
+                    </button>
+                  </div>
+                  <pre className="text-sm text-gray-700 whitespace-pre-wrap">
+                    {checklist}
+                  </pre>
                 </div>
-                <pre className="whitespace-pre-wrap text-sm text-gray-600">
-                  {checklist}
-                </pre>
               </div>
             )}
 
             {analysisState === 'error' && (
-              <div className="bg-red-50 rounded-xl border border-red-100 p-6">
-                <div className="flex items-center">
-                  <AlertCircle className="h-5 w-5 text-red-400" />
-                  <h3 className="ml-2 text-sm font-medium text-red-800">
-                    Error analyzing document
-                  </h3>
+              <div className="bg-red-50 border border-red-200 rounded-lg">
+                <div className="p-6">
+                  <div className="flex items-center">
+                    <AlertCircle className="h-5 w-5 text-red-500" />
+                    <h3 className="ml-2 text-sm font-medium text-red-800">
+                      Error analyzing document
+                    </h3>
+                  </div>
+                  <p className="mt-2 text-sm text-red-700">{errorMessage}</p>
                 </div>
-                <p className="mt-2 text-sm text-red-700">{errorMessage}</p>
               </div>
             )}
           </div>
         </div>
-      </main>
+      </div>
     </div>
   )
 }
