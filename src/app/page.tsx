@@ -42,7 +42,7 @@ export default function Home() {
         throw new Error('Failed to analyze document')
       }
 
-      const data = await response.json()
+      const data = await response.json() as AnalysisResponse
       setGapAnalysis(data.gapAnalysis)
       setChecklist(data.checklist)
       setAnalysisState('success')
@@ -58,9 +58,9 @@ export default function Home() {
   }
 
   return (
-    <div className="min-h-screen bg-[#F8FAFC]">
+    <div className="min-h-screen bg-gray-50">
       {/* Header */}
-      <div className="w-full bg-white border-b border-gray-200 shadow-sm">
+      <header className="w-full bg-white border-b border-gray-200 shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex items-center gap-3">
             <FileText className="h-6 w-6 text-blue-600" />
@@ -69,10 +69,10 @@ export default function Home() {
             </h1>
           </div>
         </div>
-      </div>
+      </header>
 
       {/* Main Content */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           {/* Input Card */}
           <div className="bg-white rounded-lg shadow-md border border-gray-200 overflow-hidden">
@@ -166,7 +166,7 @@ export default function Home() {
             )}
           </div>
         </div>
-      </div>
+      </main>
     </div>
   )
 }
