@@ -1,58 +1,81 @@
 'use client'
 
-import { useState } from 'react';
-import { FileText, AlertCircle, Loader2, Upload } from 'lucide-react';
+import { useState } from 'react'
+import { FileText, AlertCircle, Loader2, ClipboardCopy } from 'lucide-react'
 
-export default function UXDesignChecker() {
-  const [input, setInput] = useState('');
-  const [analysisState, setAnalysisState] = useState('idle');
-  const [gapAnalysis, setGapAnalysis] = useState('');
-  const [checklist, setChecklist] = useState('');
-  const [errorMessage, setErrorMessage] = useState('');
+type AnalysisState = 'idle' | 'loading' | 'success' | 'error'
+
+interface AnalysisResponse {
+  gapAnalysis: string
+  checklist: string
+}
+
+async function analyzeContent(content: string): Promise<AnalysisResponse> {
+  if (!content.trim()) {
+    throw new Error('Please provide content to analyze.')
+  }
+
+  try {
+    const response = await fetch('/.netlify/functions/analyze', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ content }),
+    })
+
+    if (!response.ok) {
+      const error = await response.json()
+      throw new Error(error.error || 'Failed to analyze document')
+    }
+
+    const data = await response.json()
+    
+    if (!data.gapAnalysis || !data.checklist) {
+      throw new Error('Invalid response format from analysis')
+    }
+
+    return data as AnalysisResponse
+  } catch (error) {
+    console.error('Analysis failed:', error)
+    throw error instanceof Error ? error : new Error('An unexpected error occurred')
+  }
+}
+
+export default function Home() {
+  const [input, setInput] = useState<string>('')
+  const [analysisState, setAnalysisState] = useState<AnalysisState>('idle')
+  const [gapAnalysis, setGapAnalysis] = useState<string>('')
+  const [checklist, setChecklist] = useState<string>('')
+  const [errorMessage, setErrorMessage] = useState<string>('')
 
   const handleAnalyze = async () => {
     if (!input.trim()) {
-      setErrorMessage('Please enter some content to analyze.');
-      setAnalysisState('error');
-      return;
+      setErrorMessage('Please enter some content to analyze.')
+      setAnalysisState('error')
+      return
     }
-
-    setAnalysisState('loading');
-    setErrorMessage('');
-    setGapAnalysis('');
-    setChecklist('');
+    
+    setAnalysisState('loading')
+    setErrorMessage('')
+    setGapAnalysis('')
+    setChecklist('')
 
     try {
-      const response = await fetch('/api/analyze', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ content: input }),
-      });
-
-      if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.error || 'Failed to analyze document');
-      }
-
-      const data = await response.json();
-      
-      if (!data.gapAnalysis || !data.checklist) {
-        throw new Error('Invalid response format from analysis');
-      }
-
-      setGapAnalysis(data.gapAnalysis);
-      setChecklist(data.checklist);
-      setAnalysisState('success');
+      const { gapAnalysis: gap, checklist: list } = await analyzeContent(input)
+      setGapAnalysis(gap)
+      setChecklist(list)
+      setAnalysisState('success')
     } catch (error) {
-      console.error('Analysis failed:', error);
-      setErrorMessage(error instanceof Error ? error.message : 'An unexpected error occurred');
-      setAnalysisState('error');
+      console.error('Error:', error)
+      setErrorMessage(error instanceof Error ? error.message : 'An unexpected error occurred')
+      setAnalysisState('error')
     }
-  };
+  }
 
-  const copyToClipboard = (text) => {
-    navigator.clipboard.writeText(text);
-  };
+  const copyToClipboard = (text: string): void => {
+    navigator.clipboard.writeText(text)
+  }
 
   return (
     <div className="min-h-screen bg-gray-50/50">
@@ -93,7 +116,6 @@ export default function UXDesignChecker() {
                   </>
                 ) : (
                   <>
-                    <Upload className="-ml-1 mr-2 h-5 w-5" />
                     Analyze Document
                   </>
                 )}
@@ -111,8 +133,9 @@ export default function UXDesignChecker() {
                   </h2>
                   <button
                     onClick={() => copyToClipboard(gapAnalysis)}
-                    className="text-sm text-blue-500 hover:text-blue-600 transition-colors"
+                    className="text-sm text-blue-500 hover:text-blue-600 transition-colors flex items-center gap-2"
                   >
+                    <ClipboardCopy className="h-4 w-4" />
                     Copy to clipboard
                   </button>
                 </div>
@@ -130,8 +153,9 @@ export default function UXDesignChecker() {
                   </h2>
                   <button
                     onClick={() => copyToClipboard(checklist)}
-                    className="text-sm text-blue-500 hover:text-blue-600 transition-colors"
+                    className="text-sm text-blue-500 hover:text-blue-600 transition-colors flex items-center gap-2"
                   >
+                    <ClipboardCopy className="h-4 w-4" />
                     Copy to clipboard
                   </button>
                 </div>
@@ -156,5 +180,5 @@ export default function UXDesignChecker() {
         </div>
       </main>
     </div>
-  );
+  )
 }
