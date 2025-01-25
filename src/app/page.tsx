@@ -16,7 +16,7 @@ async function analyzeContent(content: string): Promise<AnalysisResponse> {
   }
 
   try {
-    const response = await fetch('/.netlify/functions/analyze', {
+    const response = await fetch('/api/analyze', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -24,14 +24,29 @@ async function analyzeContent(content: string): Promise<AnalysisResponse> {
       body: JSON.stringify({ content }),
     })
 
+    // Check if response is ok before trying to parse JSON
     if (!response.ok) {
-      const error = await response.json()
-      throw new Error(error.error || 'Failed to analyze document')
+      // Try to get error message from response
+      let errorMessage = 'Failed to analyze document'
+      try {
+        const errorData = await response.json()
+        errorMessage = errorData.error || errorMessage
+      } catch {
+        // If JSON parsing fails, use status text
+        errorMessage = response.statusText || errorMessage
+      }
+      throw new Error(errorMessage)
     }
 
-    const data = await response.json()
+    let data
+    try {
+      data = await response.json()
+    } catch (err) {
+      console.error('JSON Parse Error:', err)
+      throw new Error('Invalid response from server')
+    }
     
-    if (!data.gapAnalysis || !data.checklist) {
+    if (!data || !data.gapAnalysis || !data.checklist) {
       throw new Error('Invalid response format from analysis')
     }
 
@@ -115,9 +130,7 @@ export default function Home() {
                     Analyzing...
                   </>
                 ) : (
-                  <>
-                    Analyze Document
-                  </>
+                  'Analyze Document'
                 )}
               </button>
             </div>
