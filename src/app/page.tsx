@@ -1,3 +1,5 @@
+'use client'
+
 import { useState } from 'react';
 import { FileText, AlertCircle, Loader2, Upload } from 'lucide-react';
 
